@@ -1,0 +1,40 @@
+syntax = "v1"
+
+type Todo {
+	Id        int64  `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
+	CreatedAt string `json:"created_at"`
+}
+
+type CreateRequest {
+	Title string `json:"title"`
+}
+
+type CreateResponse {
+	Id int64 `json:"id"`
+}
+
+type UpdateRequest {
+	Id        int64 `json:"id"`
+	Completed bool  `json:"completed"`
+}
+
+type ListResponse {
+	Todos []Todo `json:"todos"`
+}
+
+service todo-api {
+	@handler createTodoHandler
+	post /todos (CreateRequest) returns (CreateResponse)
+
+	@handler deleteTodoHandler
+	delete /todos/:id (Todo)
+
+	@handler updateTodoHandler
+	put /todos (UpdateRequest)
+
+	@handler listTodosHandler
+	get /todos (Todo) returns (ListResponse)
+}
+

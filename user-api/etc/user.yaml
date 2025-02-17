@@ -1,0 +1,13 @@
+Name: user
+Host: 0.0.0.0
+Port: 8888
+DB:
+  DataSource: root:PXDN93VRKUm8TeE7@tcp(localhost:33069)/todo_db?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Cache:
+  - Host: localhost:6379
+    Pass:
+Redis:
+  Host: localhost:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+  Key:

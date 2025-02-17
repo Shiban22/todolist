@@ -1,0 +1,94 @@
+syntax = "v1"
+
+info (
+	title:   "用户服务API文档"
+	desc:    "提供用户注册、登录、管理等功能"
+	author:  "趴趴趴趴趴菜"
+	version: "1.0"
+)
+
+type (
+	// 基础响应
+	BaseResponse {
+		Code int         `json:"code"`
+		Msg  string      `json:"msg"`
+		Data interface{} `json:"data,omitempty"`
+	}
+	// 用户信息
+	UserInfo {
+		Id       int64  `json:"id"`
+		Username string `json:"username"`
+		Email    string `json:"email,optional"` // 可选字段
+		Phone    string `json:"phone,optional"`
+		CreateAt string `json:"createAt,optional"`
+		UpdateAt string `json:"updateAt,optional"`
+	}
+	// 注册请求
+	RegisterReq {
+		Username string `json:"username" validate:"required,min=3,max=20"`
+		Password string `json:"password" validate:"required,min=6,max=30"`
+		Email    string `json:"email,optional" validate:"email"`
+		Phone    string `json:"phone,optional" validate:"len=11"`
+	}
+	// 登录请求
+	LoginReq {
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
+	}
+	// 登录响应
+	LoginResp {
+		UserInfo UserInfo `json:"userInfo"`
+		Token    string   `json:"token"`
+	}
+	// 用户ID请求
+	UserIdReq {
+		Id int64 `path:"id"`
+	}
+	// 更新用户请求
+	UpdateUserReq {
+		Id    int64  `path:"id"`
+		Email string `json:"email,optional" validate:"email"`
+		Phone string `json:"phone,optional" validate:"len=11"`
+	}
+)
+
+// 新增分页请求参数
+type UserListReq {
+	Page     int    `form:"page,default=1" validate:"min=1"` // 当前页码
+	PageSize int    `form:"pageSize,default=10" validate:"min=1,max=100"` // 每页数量
+	Keyword  string `form:"keyword,optional"` // 搜索关键词
+}
+
+// 分页响应结构
+type UserListResp {
+	CurrentPage int        `json:"currentPage"`
+	PageSize    int        `json:"pageSize"`
+	Total       int64      `json:"total"`
+	List        []UserInfo `json:"list"`
+}
+
+@server (
+	jwt:   Auth
+	group: user
+)
+service user {
+	@handler register
+	post /user/register (RegisterReq) returns (BaseResponse)
+
+	@handler login
+	post /user/login (LoginReq) returns (BaseResponse)
+
+	@handler getUserInfo
+	get /users/:id (UserIdReq) returns (BaseResponse)
+
+	@handler updateUser
+	put /users/update (UpdateUserReq) returns (BaseResponse)
+
+	@handler deleteUser
+	delete /users/:id (UserIdReq) returns (BaseResponse)
+
+	// 在service区块添加新接口
+	@handler listUsers
+	get /users (UserListReq) returns (BaseResponse)
+}
+
