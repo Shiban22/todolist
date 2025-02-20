@@ -14,6 +14,7 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
+	"github.com/Masterminds/squirrel"
 )
 
 var (
@@ -37,6 +38,7 @@ type (
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id int64) error
 		Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
+		FindPageListByPage(ctx context.Context, rowBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*User, error)
 	}
 
 	defaultUserModel struct {
@@ -77,7 +79,35 @@ func (m *defaultUserModel) Delete(ctx context.Context, id int64) error {
 	}, todoDbUserEmailKey, todoDbUserIdKey, todoDbUserUsernameKey)
 	return err
 }
+func (m *defaultUserModel) FindPageListByPage(ctx context.Context, builder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*User, error) {
 
+	builder = builder.Columns(userRows).From(m.table)
+
+	if orderBy == "" {
+		builder = builder.OrderBy("id DESC")
+	} else {
+		builder = builder.OrderBy(orderBy)
+	}
+
+	if page < 1 {
+		page = 1
+	}
+	offset := (page - 1) * pageSize
+
+	query, values, err := builder.Where("1 = ?", 1).Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp []*User
+	err = m.QueryRowsNoCacheCtx(ctx, &resp, query, values...)
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}
 func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error) {
 	todoDbUserIdKey := fmt.Sprintf("%s%v", cacheTodoDbUserIdPrefix, id)
 	var resp User

@@ -25,6 +25,12 @@ func NewDeleteUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 
 func (l *DeleteUserLogic) DeleteUser(req *types.UserIdReq) (resp *types.BaseResponse, err error) {
 	// todo: add your logic here and delete this line
-
-	return
+	err = l.svcCtx.UserModel.Delete(l.ctx,req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &types.BaseResponse{
+		Code: 0,
+		Msg:  "删除成功",
+	}, nil
 }
