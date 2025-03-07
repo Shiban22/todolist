@@ -44,9 +44,9 @@ type UserInfo struct {
 }
 
 type UserListReq struct {
-	Page     int    `form:"page,default=1" validate:"min=1"`              // 当前页码
-	PageSize int    `form:"pageSize,default=10" validate:"min=1,max=100"` // 每页数量
-	Keyword  string `form:"keyword,optional"`                             // 搜索关键词
+	Page     int      `form:"page,default=1" validate:"min=1"`              // 当前页码
+	PageSize int      `form:"pageSize,default=10" validate:"min=1,max=100"` // 每页数量
+	Keyword  []string `form:"keyword,optional"`                             // 搜索关键词  // 格式示例：keyword=username:john&keyword=email:test@example.com
 }
 
 type UserListResp struct {

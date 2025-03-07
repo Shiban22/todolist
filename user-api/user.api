@@ -52,6 +52,7 @@ type (
 	}
 )
 
+
 // 新增分页请求参数
 type UserListReq {
 	Page     int    `form:"page,default=1" validate:"min=1"` // 当前页码
